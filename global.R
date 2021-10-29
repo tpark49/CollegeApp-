@@ -3,15 +3,14 @@ library(dplyr)
 library(tidyr)
 library(ggplot2)
 
-
+#read files
 df1 <- read.csv("example_datafile.csv")
 df2 <- read.csv("example_datafile1.csv")
 df3 <- read.csv("example_datafile4.csv")
 
+#concatenate total df 
 df = rbind(rbind(df1, df2), df3)
 df = df[!duplicated(df), ]
-
-###CLEANING###
 
 #extract number for GPA
 df$GPA = str_replace(df$GPA, "\nGPA", "")
@@ -19,14 +18,6 @@ mode(df$GPA) = "numeric"
 
 #make new column for GPA (weigted vs unweigthed)
 df$GPA_measure = ifelse(df$GPA>4, "weighted", "unweighted")
-
-#pivot long by colleges
-df %>%
-  mutate(Accepted = str_extract_all(df$accepted_schools, "([A-Za-z\\s&'/.-]+,)|([A-Za-z\\s&'/.-]+)")) %>%
-  tidyr::unnest(Accepted) -> df
-
-df$Accepted = str_replace(df$Accepted, ",", "")
-df$Accepted = trimws(df$Accepted)
 
 #number of essays 
 df$num_of_Essays = str_replace(df$num_of_Essays, "Essays", "")
@@ -56,32 +47,38 @@ mode(df$num_of_schools) = "numeric"
 df$SAT = str_replace(df$SAT, "SAT", "")
 mode(df$SAT) = "numeric"
 
-df = filter(df, SAT >40)
+df$SAT[df$SAT <40] = NA
+df$SAT[df$SAT >2400] = NA
 df$SAT = ifelse(df$SAT>1600, df$SAT*2/3, df$SAT)
 #df$SAT[df$SAT == 222] = 2222
 
 #ACT Score
 df$ACT = str_replace(df$ACT, "ACT", "")
 mode(df$ACT) = "numeric"
-df$ACT[df$ACT == 0] = NA
+df$ACT[df$ACT == 0] = NA 
+
+#pivot long by colleges for accepted
+df %>%
+  mutate(Accepted = str_extract_all(df$accepted_schools, "([A-Za-z\\s&'/.-]+,)|([A-Za-z\\s&'/.-]+)")) %>%
+  tidyr::unnest(Accepted) -> Accepted_df
+
+Accepted_df$Accepted = str_replace(Accepted_df$Accepted, ",", "")
+Accepted_df$Accepted = trimws(Accepted_df$Accepted)
+
+
+
+#pivot long by colleges for rejected
+df %>%
+  mutate(Rejected = str_extract_all(df$rejected_schools, "([A-Za-z\\s&'/.-]+,)|([A-Za-z\\s&'/.-]+)")) %>%
+  tidyr::unnest(Rejected)-> Rejected_df
+
+Rejected_df$Rejected = str_replace(Rejected_df$Rejected, ",", "")
+Rejected_df$Rejected = trimws(Rejected_df$Rejected)
+
+View(Rejected_df)
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  
+  

@@ -1,10 +1,15 @@
 library(stringr)
 library(dplyr)
 library(tidyr)
+library(ggplot2)
 
-df <- read.csv("example_datafile.csv")
 
+df1 <- read.csv("example_datafile.csv")
+df2 <- read.csv("example_datafile1.csv")
+df3 <- read.csv("example_datafile4.csv")
 
+df = rbind(rbind(df1, df2), df3)
+df = df[!duplicated(df), ]
 
 ###CLEANING###
 
@@ -54,10 +59,6 @@ mode(df$SAT) = "numeric"
 df = filter(df, SAT >40)
 df$SAT = ifelse(df$SAT>1600, df$SAT*2/3, df$SAT)
 #df$SAT[df$SAT == 222] = 2222
-
-
-
-View(df)
 
 #ACT Score
 df$ACT = str_replace(df$ACT, "ACT", "")

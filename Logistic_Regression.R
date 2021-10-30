@@ -72,16 +72,20 @@ mode(input_df$hometown) = "numeric"
 input_df = input_df[, !(names(input_df) %in% c("user_url", "username", "current_school", "user_major",
                                     "accepted_schools", "waitlisted_schools",
                                     "rejected_schools", "rank", "num_of_Essays",
-                                    "num_of_Advice", "num_of_schools"))]
+                                    "num_of_Advice", "num_of_schools", "ACT", "class_of"))]
 
 #train the data on logistic classifier
 #split data for train/test 
 train = input_df[1:round(nrow(input_df)/2),]
 test = input_df[round(nrow(input_df)/2):round(nrow(input_df)), ]
 
+
+#sum(is.na(input_df$SAT))
+
 #fit the model 
 model = glm(Result ~ ., family = binomial(link='logit'), data=train)
 summary(model)
 
-model_1 = glm(Result ~ SAT + GPA + GPA_measure,family = binomial(link='logit'), data=train)
-summary(model_1)
+#predict given testset 
+model %>%
+  predict(test[1,], type="response") ->x 

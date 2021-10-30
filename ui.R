@@ -1,66 +1,69 @@
-#SAT (user can choose 2400 scale, but will be converted to 1600)
-SAT_mean = mean(Accepted_df[Accepted_df$Accepted=="UPenn",]$SAT, na.rm = T)
-Accepted_df %>%
-  filter(Accepted == "UPenn") %>%
-  ggplot(aes(SAT)) + 
-  geom_histogram(aes(y=..density..),
-                 breaks = seq(500, 2000, by = 20),
-                 color="grey",
-                 fill="white") +
-  geom_density(alpha=0.3,
-               fill ="#FF6666") +
-  xlim(1000, 1800) +  
-  geom_vline(aes(xintercept=SAT_mean),
-             col="black", size=1, linetype="dashed")+ 
-  annotate(x=SAT_mean, y=0, label="mean", geom="label") + 
-  geom_vline(aes(xintercept=1550), 
-             col="blue", size=1, linetype="dashed") + 
-  annotate(x=1550, y=0.007, label="Your Score", geom="label", 
-           color="blue")
+ui <- dashboardPage(
+  dashboardHeader(), 
+  dashboardSidebar(
+    sidebarMenu(id="sidebar", 
+    menuItem("Chance Me", tabName = "Chance_Me", icon = icon("address-card")),
+    menuItem("SAT Score", tabName = "SAT_Score", icon = icon("pencil-ruler")), 
+    menuItem("GPA", tabName = "GPA", icon=icon("graduation-cap"))
+  ))
+  ,
+  dashboardBody(
+    
+    tabItems(
+      tabItem("Chance_Me",
+              fluidRow(
+                column(6,
+                       selectInput("Ethnicity", "Ethnicity", c("Native American", "Black / African American",
+                                                               "Hispanic","Asian","White Non-Hispanic"), width="70%"),
+                       radioButtons(inputId="English_FL", label="English First Language?", choices=c("Yes","No")),
+                       radioButtons(inputId="Admission_Type", label="Admission Type", choices=c("Regular","Early")), 
+                       radioButtons(inputId="First_Gen", label="First Generation?", choices=c("Yes","No")),
+                       radioButtons(inputId="Legacy", label="Legacy?", choices=c("Yes","No")),
+                       radioButtons(inputId="Gender", label="Gender", choices=c("Male","Female")),
+                       selectInput("Hometown", "Hometown", state.name, width="60%")
+          ),
+                
+                column(6,
+                       numericInput(inputId = "SAT", label = "SAT Score (1600)", value = 0, width = "60%", min = 0, max = 1600, step=50),
+                       
+                        numericInput(inputId = "GPA", label = "GPA", value = 0, width = "60%", min = 0, max = 5.0, step=0.1),
+                        radioButtons(inputId="GPA_Scale", label="GPA Scale", choices=c("Weighted","Unweighted")),
+                       numericInput(inputId = "Num_of_ECs", label = "Number of Extracurricular", value = 0, width = "60%", min = 0, max = 10, step=0.5),
+                       numericInput(inputId = "Num_of_Sports", label = "Number of Sports Played", value = 0, width = "60%", min = 0, max = 10, step=0.5),
+                       numericInput(inputId = "Num_of_Scores", label = "Number of AP & SATII Taken", value = 0, width = "60%", min = 0, max = 10, step=0.5),
+                       
+                        selectInput("School", "Pick a College", unique(Accepted_df$Accepted), width="60%")
+                )
+                
+              ), 
+              fluidRow(
+                column(10, 
+                       actionButton(inputId = "ActionButton", label = "Chance Me", width = "100%",
+                                    style= "color: #fff; background-color: #337ab7; border-color: #2e6da4"))
+                
+              )
+              
+              
+              ),
+      
+      tabItem("SAT_Score", 
+              box(plotOutput("SAT_ND"), width ="100%"), 
+              box(plotOutput("SAT_BOX"), width = "100%")
+              ),
+      
+      tabItem("GPA",
+              box(plotOutput("GPA_ND"), width ="100%"),
+              box(plotOutput("GPA_BOX"), width ="100%")
+              
+              )
+      
+  
+    )
+    
+  )
 
-#boxplot - SAT
-Accepted_df %>%
-  filter(Accepted == "UPenn") %>%
-  ggplot(aes(y=SAT)) +
-  geom_boxplot() +
-  xlim(-1,1) +
-  geom_hline(yintercept = 1550, linetype="dashed",
-             size=1, color="blue") +
-  annotate(x=-0.7, y=1550, label="Your GPA",
-           color="blue", geom="label")
+)
 
-
-#GPA - Weighted (or unweighted - user can specify)
-GPA_mean = mean(Accepted_df[Accepted_df$Accepted=="UPenn"&Accepted_df$GPA_measure=="weighted",]$GPA, na.rm = T)
-
-Accepted_df %>%
-  filter(Accepted == "UPenn" & GPA_measure=="weighted") %>%
-  ggplot(aes(GPA)) +
-  geom_histogram(aes(y=..density..),
-                 bins = 20,
-                 # breaks = seq(500, 2000, by = 20),
-                 color="grey",
-                 fill="white") +
-  geom_density(alpha=0.3,
-               fill ="#FF6666") +
-  geom_vline(aes(xintercept=GPA_mean),
-             col="black", size=1, linetype="dashed")+
-  annotate(x=GPA_mean, y=0, label="mean", geom="label") + 
-  geom_vline(aes(xintercept=4.5), 
-             col="blue" ,size=1, linetype="dashed") + 
-  annotate(x=4.5, y=5, label="Your GPA", 
-           color="blue", geom="label")
-
-#boxplot - GPA
-Accepted_df %>%
-  filter(Accepted == "UPenn" & GPA_measure=="weighted") %>%
-  ggplot(aes(y=GPA)) +
-  geom_boxplot() +
-  xlim(-1,1) + 
-  geom_hline(yintercept = 4.5, linetype="dashed", 
-             size=1, color="blue") + 
-  annotate(x=-0.7, y=4.5, label="Your GPA", 
-           color="blue", geom="label")
 
 
 

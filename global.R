@@ -2,6 +2,8 @@ library(stringr)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
+library(fastDummies)
+library(stringr)
 
 #read files
 df1 <- read.csv("example_datafile.csv")
@@ -75,7 +77,8 @@ df %>%
 Rejected_df$Rejected = str_replace(Rejected_df$Rejected, ",", "")
 Rejected_df$Rejected = trimws(Rejected_df$Rejected)
 
-View(Rejected_df)
+
+
 
 
 

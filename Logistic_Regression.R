@@ -43,6 +43,45 @@ input_df$ethnicity = ifelse(input_df$ethnicity %in% c("Native American"), 1, ife
   )
 )
 
-#hometown - extract state 
-input_df$hometown = str_extract(input_df$hometown, paste(state.name, collapse='|'))
+View(input_df)
 
+#Legacy 
+input_df$legacy = ifelse(input_df$legacy =="No", 0, 1)
+
+#hometown - extract state then convert to binary -  
+input_df$hometown = str_extract(input_df$hometown, paste(state.name, collapse='|'))
+states = c("alabama", "alaska", "arizona", "arkansas", 
+           "california", "colorado", "connecticut", "delaware", "district of columbia", 
+           "florida", "georgia", "hawaii", "idaho", "illinois", "indiana", 
+           "iowa", "kansas", "kentucky", "louisiana", "maine", "maryland", 
+           "massachusetts", "michigan", "minnesota", "mississippi", "missouri", 
+           "montana", "nebraska", "nevada", "new hampshire", "new jersey", 
+           "new mexico", "new york", "north carolina", "north dakota", "ohio", 
+           "oklahoma", "oregon", "pennsylvania", "rhode island", "south carolina", 
+           "south dakota", "tennessee", "texas", "utah", "vermont", "virginia", 
+           "washington", "west virginia", "wisconsin", "wyoming")
+values = seq(1:51)
+
+input_df$hometown = tolower(input_df$hometown)
+
+input_df$hometown = mapvalues(input_df$hometown, from =states,to = values)
+
+mode(input_df$hometown) = "numeric"
+
+#drop a few irrelevant columns
+input_df = input_df[, !(names(input_df) %in% c("user_url", "username", "current_school", "user_major",
+                                    "accepted_schools", "waitlisted_schools",
+                                    "rejected_schools", "rank", "num_of_Essays",
+                                    "num_of_Advice", "num_of_schools"))]
+
+#train the data on logistic classifier
+#split data for train/test 
+train = input_df[1:round(nrow(input_df)/2),]
+test = input_df[round(nrow(input_df)/2):round(nrow(input_df)), ]
+
+#fit the model 
+model = glm(Result ~ ., family = binomial(link='logit'), data=train)
+summary(model)
+
+model_1 = glm(Result ~ SAT + GPA + GPA_measure,family = binomial(link='logit'), data=train)
+summary(model_1)

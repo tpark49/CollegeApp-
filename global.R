@@ -4,6 +4,10 @@ library(tidyr)
 library(ggplot2)
 library(fastDummies)
 library(stringr)
+library(hash)
+library(plyr)
+library(MASS)
+library(car)
 
 #read files
 df1 <- read.csv("example_datafile.csv")

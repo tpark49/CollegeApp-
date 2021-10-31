@@ -44,7 +44,7 @@ server <- function(input, output){
   #Normal Distribution for GPA
   output$GPA_ND <- renderPlot({
 
-
+    
     GPA_mean = mean(Accepted_df[Accepted_df$Accepted==input$School&Accepted_df$GPA_measure==tolower(input$GPA_Scale),]$GPA, na.rm = T)
     
     Accepted_df %>%
@@ -74,12 +74,144 @@ server <- function(input, output){
       filter(Accepted == input$School & GPA_measure==tolower(input$GPA_Scale)) %>%
       ggplot(aes(y=GPA)) +
       geom_boxplot() +
-      xlim(-1,1) + 
-      geom_hline(yintercept = input$GPA, linetype="dashed", 
-                 size=1, color="blue") + 
-      annotate(x=-0.7, y=input$GPA, label="Your GPA", 
+      xlim(-1,1) +
+      geom_hline(yintercept = input$GPA, linetype="dashed",
+                 size=1, color="blue") +
+      annotate(x=-0.7, y=input$GPA, label="Your GPA",
                color="blue", geom="label")
-   
+    })
+  
+  #Logisitc Regression to predict person's acceptance
+  output$Model <- renderText({
+    
+    #filter df based on input
+    input_df_accepted = Accepted_df[Accepted_df$Accepted==input$School,]
+    input_df_rejected = Rejected_df[Rejected_df$Rejected==input$School,]
+    
+    #Standardize column names to result to concat 
+    colnames(input_df_accepted)[which(names(input_df_accepted)=="Accepted")]  = "Result"
+    colnames(input_df_rejected)[which(names(input_df_rejected)=="Rejected")]  = "Result"
+    
+    #turn Result column into binary 
+    input_df_accepted$Result = 1 
+    input_df_rejected$Result = 0 
+    
+    #concat two dataframes
+    input_df = rbind(input_df_accepted, input_df_rejected)
+    
+    #convert GPA measure into binary 
+    input_df$GPA_measure = ifelse(input_df$GPA_measure =="weighted", 1, 0)
+    
+    #first gen into binary 
+    input_df$first_gen = ifelse(input_df$first_gen == "Yes", 1, 0)
+    
+    #Admission binary - early action vs not 
+    input_df$Admission = ifelse(input_df$Admission %in% c("Early Action", "Early Decision"), 1, 0)
+    
+    #English_FL - 0 no 1 else
+    input_df$English_FL = ifelse(input_df$English_FL == "No", 0, 1)
+    
+    #Gender 
+    input_df$gender = ifelse(input_df$gender == "Male", 1,0)
+    
+    #Dummify ethnicity on 4-5 categories 
+    input_df$ethnicity = ifelse(input_df$ethnicity %in% c("Native American"), 1, ifelse(
+      input_df$ethnicity %in% c("Black / African American"), 2, ifelse(
+        input_df$ethnicity %in% c("Hispanic"), 3, ifelse(
+          input_df$ethnicity %in% c("Asian"), 4, ifelse(
+            input_df$ethnicity %in% c("White Non-Hispanic"), 5, 0)
+        )
+      )
+    )
+    )
+    
+    #Legacy 
+    input_df$legacy = ifelse(input_df$legacy =="No", 0, 1)
+    
+    #hometown - extract state then convert to binary -  
+    input_df$hometown = str_extract(input_df$hometown, paste(state.name, collapse='|'))
+    states = c("alabama", "alaska", "arizona", "arkansas", 
+               "california", "colorado", "connecticut", "delaware", "district of columbia", 
+               "florida", "georgia", "hawaii", "idaho", "illinois", "indiana", 
+               "iowa", "kansas", "kentucky", "louisiana", "maine", "maryland", 
+               "massachusetts", "michigan", "minnesota", "mississippi", "missouri", 
+               "montana", "nebraska", "nevada", "new hampshire", "new jersey", 
+               "new mexico", "new york", "north carolina", "north dakota", "ohio", 
+               "oklahoma", "oregon", "pennsylvania", "rhode island", "south carolina", 
+               "south dakota", "tennessee", "texas", "utah", "vermont", "virginia", 
+               "washington", "west virginia", "wisconsin", "wyoming")
+    values = seq(1:51)
+    
+    #make dictionary for mapping user inputs 
+    h = hash()
+    h[states] = values
+  
+    input_df$hometown = tolower(input_df$hometown)
+    
+    input_df$hometown = mapvalues(input_df$hometown, from =states,to = values)
+    
+    mode(input_df$hometown) = "numeric"
+    
+    
+    #drop a few irrelevant columns
+    input_df = input_df[, !(names(input_df) %in% c("user_url", "username", "current_school", "user_major",
+                                                   "accepted_schools", "waitlisted_schools",
+                                                   "rejected_schools", "rank", "num_of_Essays",
+                                                   "num_of_Advice", "num_of_schools", "ACT", "class_of"))]
+    
+
+    #build the logistic regression model 
+    model = glm(Result ~ ., family = binomial(link='logit'), data=input_df)
+    
+    # #predict using model
+    user_input = data.frame(
+      "hometown" = h[[tolower(input$Hometown)]],
+      "gender" = ifelse(input$Gender == "Male", 1, 0),
+      "ethnicity" = ifelse(input$Ethnicity=="Native American", 1,
+                          ifelse(input$Ethnicity=="Black / African American", 2,
+                                 ifelse(input$Ethnicity=="Hispanic",3,
+                                        ifelse(input$Ethnicity=="Asian", 4,
+                                               ifelse(input$Ethnicity=="White Non-Hispanic",5,0))))),
+      "English_FL" = ifelse(input$English_FL == "Yes", 1, 0),
+      "Admission" = ifelse(input$Admission_Type == "Early", 1, 0),
+      "first_gen" = ifelse(input$First_Gen == "Yes", 1, 0),
+      "legacy" = ifelse(input$Legacy == "Yes", 1, 0),
+      "GPA_measure" = ifelse(input$GPA_Scale == "Weighted", 1, 0),
+      "GPA" = input$GPA + input$slider_1,
+      "num_of_Scores" = input$Num_of_Scores,
+      "num_of_ECs" = input$Num_of_ECs,
+      "num_of_Sports" = input$Num_of_Sports,
+      "SAT"=input$SAT + input$slider)
+    
+    
+    model %>%
+      predict(user_input, type="response") ->prediction
+      
+
+    
+    #h1(paste(paste("Your probability of getting into ", input$School), " is..."))
+    HTML(
+      
+          paste0(
+                "<div>",
+                "<h1 style=
+                'color:grey; 
+                font-size:45px;'>","Probability of getting into ", input$School, ": ",
+                "<b style='font-size:60px; color:black'>",
+                round((prediction)*100), "%","</b>", "</h1>", 
+                "<h1 style= color:grey;font-size:45px;'>",
+                "Your SAT Score: ", "<b style='font-size:60px; color:black'>",
+                input$SAT + input$slider, "</b>",
+                "</h1>",
+                "<h1 style= color:grey;font-size:45px;'>",
+                "Your GPA: ", "<b style='font-size:60px; color:black'>",
+                round(input$GPA + input$slider_1, digits =1), "</b>",
+                "</h1>",
+                "</div>")
+               
+                
+                
+         )
     
   })
   

@@ -4,7 +4,8 @@ ui <- dashboardPage(
     sidebarMenu(id="sidebar", 
     menuItem("Chance Me", tabName = "Chance_Me", icon = icon("address-card")),
     menuItem("SAT Score", tabName = "SAT_Score", icon = icon("pencil-ruler")), 
-    menuItem("GPA", tabName = "GPA", icon=icon("graduation-cap"))
+    menuItem("GPA", tabName = "GPA", icon=icon("graduation-cap")), 
+    menuItem("Result", tabName = "Result", icon=icon("check-square"))
   ))
   ,
   dashboardBody(
@@ -24,9 +25,9 @@ ui <- dashboardPage(
           ),
                 
                 column(6,
-                       numericInput(inputId = "SAT", label = "SAT Score (1600)", value = 0, width = "60%", min = 0, max = 1600, step=50),
+                       numericInput(inputId = "SAT", label = "SAT Score (1600)", value = 1450, width = "60%", min = 0, max = 1600, step=50),
                        
-                        numericInput(inputId = "GPA", label = "GPA", value = 0, width = "60%", min = 0, max = 5.0, step=0.1),
+                        numericInput(inputId = "GPA", label = "GPA", value = 4.0, width = "60%", min = 0, max = 5.0, step=0.1),
                         radioButtons(inputId="GPA_Scale", label="GPA Scale", choices=c("Weighted","Unweighted")),
                        numericInput(inputId = "Num_of_ECs", label = "Number of Extracurricular", value = 0, width = "60%", min = 0, max = 10, step=0.5),
                        numericInput(inputId = "Num_of_Sports", label = "Number of Sports Played", value = 0, width = "60%", min = 0, max = 10, step=0.5),
@@ -55,7 +56,20 @@ ui <- dashboardPage(
               box(plotOutput("GPA_ND"), width ="100%"),
               box(plotOutput("GPA_BOX"), width ="100%")
               
-              )
+              ),
+      
+      tabItem("Result",
+
+              sidebarPanel(
+              sliderInput("slider",
+                          label= "SAT Score Improvement:",
+                          min=0, max=400, value=0),
+              sliderInput("slider_1",
+                          label= "GPA Improvement:", 
+                          min=0, max = 1, value = 0),
+              ),
+              htmlOutput("Model")
+      )
       
   
     )

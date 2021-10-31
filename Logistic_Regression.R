@@ -76,16 +76,34 @@ input_df = input_df[, !(names(input_df) %in% c("user_url", "username", "current_
 
 #train the data on logistic classifier
 #split data for train/test 
-train = input_df[1:round(nrow(input_df)/2),]
-test = input_df[round(nrow(input_df)/2):round(nrow(input_df)), ]
+sample <- sample.int(n = nrow(input_df), size = floor(.75*nrow(input_df)), replace = F)
 
 
-#sum(is.na(input_df$SAT))
+train = input_df[sample,]
+test = input_df[-sample,]
+
+#sum(is.na(input_df$hometown))
 
 #fit the model 
 model = glm(Result ~ ., family = binomial(link='logit'), data=train)
 summary(model)
 
-#predict given testset 
-model %>%
-  predict(test[1,], type="response") ->x 
+#predict given test data set 
+# value = c(1,2,3,4,5,6,7,8,9,10,11,12,13,14)
+# input = data.frame(
+#   "hometown" =1,
+#   "gender" = 0 
+# )
+# input
+# 
+# 
+# model %>%
+#   predict(input, type="response")
+# model %>%
+#   predict(test, type="response") ->prediction 
+# 
+# prediction = ifelse(prediction>0.5, 1, 0)
+# result = prediction==test$Result
+# sum((!is.na(result) & result == TRUE))/sum((!is.na(result)))
+
+                                           

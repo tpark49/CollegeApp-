@@ -10,14 +10,14 @@ ui <- dashboardPage(
   ,
   dashboardBody(
     
-    tabItems(
+    tabItems( 
       tabItem("Chance_Me",
               fluidRow(
                 column(6,
                        selectInput("Ethnicity", "Ethnicity", c("Native American", "Black / African American",
                                                                "Hispanic","Asian","White Non-Hispanic"), width="70%"),
                        radioButtons(inputId="English_FL", label="English First Language?", choices=c("Yes","No")),
-                       radioButtons(inputId="Admission_Type", label="Admission Type", choices=c("Regular","Early")), 
+                       radioButtons(inputId="Admission_Type", label="Admission Type", choices=c("Regular","Early")),
                        radioButtons(inputId="First_Gen", label="First Generation?", choices=c("Yes","No")),
                        radioButtons(inputId="Legacy", label="Legacy?", choices=c("Yes","No")),
                        radioButtons(inputId="Gender", label="Gender", choices=c("Male","Female")),
@@ -39,13 +39,16 @@ ui <- dashboardPage(
               ), 
               fluidRow(
                 column(10, 
-                       actionButton(inputId = "ActionButton", label = "Chance Me", width = "100%",
-                                    style= "color: #fff; background-color: #337ab7; border-color: #2e6da4"))
+                       actionButton(
+                         inputId = "ActionButton", label = "Chance Me", width = "100%",
+                         style= "color: #fff; background-color: #337ab7; border-color: #2e6da4"
+                         ))
                 
               )
               
               
               ),
+      
       
       tabItem("SAT_Score", 
               box(plotOutput("SAT_ND"), width ="100%"), 
@@ -63,12 +66,13 @@ ui <- dashboardPage(
               sidebarPanel(
               sliderInput("slider",
                           label= "SAT Score Improvement:",
-                          min=0, max=400, value=0),
+                          min=0, max=400, step=10, value=0),
               sliderInput("slider_1",
                           label= "GPA Improvement:", 
-                          min=0, max = 1, value = 0),
+                          min=0, max = 1,value = 0),
               ),
-              htmlOutput("Model")
+              htmlOutput("Model"),
+              box(plotOutput("Model_Plot"), width ="25%")
       )
       
   

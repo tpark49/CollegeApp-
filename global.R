@@ -10,6 +10,9 @@ library(MASS)
 library(car)
 library(shiny)
 library(shinydashboard)
+library(caret)
+library(zoo)
+library(cvms)
 
 #read files
 df1 <- read.csv("example_datafile.csv")
@@ -82,3 +85,6 @@ df %>%
 
 Rejected_df$Rejected = str_replace(Rejected_df$Rejected, ",", "")
 Rejected_df$Rejected = trimws(Rejected_df$Rejected)
+
+
+

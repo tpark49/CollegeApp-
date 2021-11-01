@@ -1,10 +1,9 @@
 #conduct Logistic Regression here 
-
 #Given input is Harvard 
 
 #filter df based on input
-input_df_accepted = Accepted_df[Accepted_df$Accepted=="Harvard",]
-input_df_rejected = Rejected_df[Rejected_df$Rejected=="Harvard",]
+input_df_accepted = Accepted_df[Accepted_df$Accepted=="Stanford",]
+input_df_rejected = Rejected_df[Rejected_df$Rejected=="Stanford",]
 
 #Standardize column names to result to concat 
 colnames(input_df_accepted)[which(names(input_df_accepted)=="Accepted")]  = "Result"
@@ -43,7 +42,6 @@ input_df$ethnicity = ifelse(input_df$ethnicity %in% c("Native American"), 1, ife
   )
 )
 
-View(input_df)
 
 #Legacy 
 input_df$legacy = ifelse(input_df$legacy =="No", 0, 1)
@@ -76,8 +74,24 @@ input_df = input_df[, !(names(input_df) %in% c("user_url", "username", "current_
 
 #train the data on logistic classifier
 #split data for train/test 
-sample <- sample.int(n = nrow(input_df), size = floor(.75*nrow(input_df)), replace = F)
 
+
+
+# outliers <- boxplot(input_df$SAT, plot = FALSE)$out
+# outliers
+
+#fill na values with mean 
+input_df = na.aggregate(input_df)
+
+#remove outliers for SAT & GPA
+# outliers_SAT <- boxplot(input_df$SAT, plot = FALSE)$out
+# input_df = input_df[!(input_df$SAT %in% outliers_SAT), ]
+# 
+# outliers_GPA <- boxplot(input_df$GPA, plot = FALSE)$out
+# input_df = input_df[!(input_df$GPA %in% outliers_GPA), ]
+
+
+sample <- sample.int(n = nrow(input_df), size = floor(.75*nrow(input_df)), replace = F)
 
 train = input_df[sample,]
 test = input_df[-sample,]
@@ -99,11 +113,20 @@ summary(model)
 # 
 # model %>%
 #   predict(input, type="response")
-# model %>%
-#   predict(test, type="response") ->prediction 
-# 
-# prediction = ifelse(prediction>0.5, 1, 0)
+
+model %>%
+  predict(test, type="response") ->prediction
+
+prediction = ifelse(prediction>0.5, 1, 0)
 # result = prediction==test$Result
 # sum((!is.na(result) & result == TRUE))/sum((!is.na(result)))
 
-                                           
+prediction
+test$Result
+x = cbind(test$Result, prediction)
+colnames(x) = c("Result", "Prediction")
+
+
+conf = confusion_matrix(targets = test$Result, 
+                 predictions = prediction)
+plot_confusion_matrix(conf$`Confusion Matrix`[[1]])

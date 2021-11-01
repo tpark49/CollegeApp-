@@ -17,7 +17,7 @@ ui <- dashboardPage(
                        selectInput("Ethnicity", "Ethnicity", c("Native American", "Black / African American",
                                                                "Hispanic","Asian","White Non-Hispanic"), width="70%"),
                        radioButtons(inputId="English_FL", label="English First Language?", choices=c("Yes","No")),
-                       radioButtons(inputId="Admission_Type", label="Admission Type", choices=c("Regular","Early")),
+                       # radioButtons(inputId="Admission_Type", label="Admission Type", choices=c("Regular","Early")),
                        radioButtons(inputId="First_Gen", label="First Generation?", choices=c("Yes","No")),
                        radioButtons(inputId="Legacy", label="Legacy?", choices=c("Yes","No")),
                        radioButtons(inputId="Gender", label="Gender", choices=c("Male","Female")),
@@ -33,7 +33,8 @@ ui <- dashboardPage(
                        numericInput(inputId = "Num_of_Sports", label = "Number of Sports Played", value = 0, width = "60%", min = 0, max = 10, step=0.5),
                        numericInput(inputId = "Num_of_Scores", label = "Number of AP & SATII Taken", value = 0, width = "60%", min = 0, max = 10, step=0.5),
                        
-                        selectInput("School", "Pick a College", unique(Accepted_df$Accepted), width="60%")
+            
+                        selectInput("School", "Pick a College", unique(colleges), width="60%")
                 )
                 
               ), 
@@ -66,13 +67,13 @@ ui <- dashboardPage(
               sidebarPanel(
               sliderInput("slider",
                           label= "SAT Score Improvement:",
-                          min=0, max=400, step=10, value=0),
+                          min=0, max=100, step=10, value=0),
               sliderInput("slider_1",
                           label= "GPA Improvement:", 
                           min=0, max = 1,value = 0),
               ),
               htmlOutput("Model"),
-              box(plotOutput("Model_Plot"), width ="25%")
+              box(plotOutput("Model_Plot"), width ="100%")
       )
       
   

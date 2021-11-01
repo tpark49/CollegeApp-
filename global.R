@@ -86,5 +86,11 @@ df %>%
 Rejected_df$Rejected = str_replace(Rejected_df$Rejected, ",", "")
 Rejected_df$Rejected = trimws(Rejected_df$Rejected)
 
+#filter for colleges with more than 100 data
+Accepted_df %>%
+  group_by(Accepted) %>%
+  dplyr::filter(n()>300) %>%
+  dplyr::select(Accepted) ->colleges
+
 
 

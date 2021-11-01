@@ -2,8 +2,8 @@
 #Given input is Harvard 
 
 #filter df based on input
-input_df_accepted = Accepted_df[Accepted_df$Accepted=="Stanford",]
-input_df_rejected = Rejected_df[Rejected_df$Rejected=="Stanford",]
+input_df_accepted = Accepted_df[Accepted_df$Accepted=="Harvard",]
+input_df_rejected = Rejected_df[Rejected_df$Rejected=="Harvard",]
 
 #Standardize column names to result to concat 
 colnames(input_df_accepted)[which(names(input_df_accepted)=="Accepted")]  = "Result"
@@ -70,7 +70,8 @@ mode(input_df$hometown) = "numeric"
 input_df = input_df[, !(names(input_df) %in% c("user_url", "username", "current_school", "user_major",
                                     "accepted_schools", "waitlisted_schools",
                                     "rejected_schools", "rank", "num_of_Essays",
-                                    "num_of_Advice", "num_of_schools", "ACT", "class_of"))]
+                                    "num_of_Advice", "num_of_schools", "ACT", "class_of",
+                                    "Admission"))]
 
 #train the data on logistic classifier
 #split data for train/test 
@@ -118,13 +119,13 @@ model %>%
   predict(test, type="response") ->prediction
 
 prediction = ifelse(prediction>0.5, 1, 0)
-# result = prediction==test$Result
-# sum((!is.na(result) & result == TRUE))/sum((!is.na(result)))
+result = prediction==test$Result
+sum((!is.na(result) & result == TRUE))/sum((!is.na(result)))
 
-prediction
-test$Result
-x = cbind(test$Result, prediction)
-colnames(x) = c("Result", "Prediction")
+# prediction
+# test$Result
+# x = cbind(test$Result, prediction)
+# colnames(x) = c("Result", "Prediction")
 
 
 conf = confusion_matrix(targets = test$Result, 

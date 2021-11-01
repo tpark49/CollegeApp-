@@ -11,25 +11,32 @@ server <- function(input, output, session){
   #Normal distribution for SAT
   output$SAT_ND <- renderPlot({
     
+    outliers_SAT <- boxplot(Accepted_df$SAT, plot = FALSE)$out
+    Accepted_df = Accepted_df[!(Accepted_df$SAT %in% outliers_SAT), ]
+    
     SAT_mean = mean(Accepted_df[Accepted_df$Accepted==input$School,]$SAT, na.rm = T)
     Accepted_df %>%
       filter(Accepted == input$School) %>%
       ggplot(aes(SAT)) + 
       geom_histogram(aes(y=..density..),
                      outliers= FALSE,
-                     breaks = seq(500, 2000, by = 20),
+                     # breaks = seq(500, 2000, by = 20),
                      color="grey",
-                     fill="white") +
+                     fill="white", 
+                     size = 3) +
       geom_density(alpha=0.3,
-                   fill ="#FF6666") +
-      scale_x_continuous(breaks=seq(500, 1800, 100), limits=c(1000, 1700))+
+                   fill ="#FF6666", 
+                   size=3) +
+      # scale_x_continuous(breaks=seq(500, 1800, 100), limits=c(1000, 1700))+
       geom_vline(aes(xintercept=SAT_mean),
-                 col="black", size=1, linetype="dashed")+ 
-      annotate(x=SAT_mean, y=0, label="mean", geom="label") + 
+                 col="black", size=2, linetype="dashed")+ 
+      annotate(x=SAT_mean, y=0, label="mean", geom="label", size=8) + 
       geom_vline(aes(xintercept=input$SAT), 
-                 col="blue", size=1, linetype="dashed") + 
+                 col="blue", size=2, linetype="dashed") + 
       annotate(x=input$SAT, y=0.007, label="Your Score", geom="label", 
-               color="blue")
+               color="blue", size=8) + 
+      theme(axis.text=element_text(size=18),
+            axis.title=element_text(size=18,face="bold"))
   }) 
   
   
@@ -39,13 +46,16 @@ server <- function(input, output, session){
     Accepted_df %>%
       filter(Accepted == input$School) %>%
       ggplot(aes(y=SAT)) +
-      geom_boxplot(outliers=FALSE) +
+      geom_boxplot(outliers=FALSE, size=2) +
       xlim(-1,1) +
       #ylim(1200, 1650) + 
       geom_hline(yintercept = input$SAT, linetype="dashed",
-                 size=1, color="blue") +
+                 size=2, color="blue") +
       annotate(x=-0.7, y=input$SAT, label="Your Score",
-               color="blue", geom="label")
+               color="blue", geom="label", size=8) + 
+      theme(axis.text=element_text(size=18),
+            axis.title=element_text(size=18,face="bold"),
+            axis.title.x=element_blank())
 
     })
   
@@ -53,7 +63,6 @@ server <- function(input, output, session){
   #Normal Distribution for GPA
   output$GPA_ND <- renderPlot({
 
-    
     GPA_mean = mean(Accepted_df[Accepted_df$Accepted==input$School&Accepted_df$GPA_measure==tolower(input$GPA_Scale),]$GPA, na.rm = T)
     
     Accepted_df %>%
@@ -64,17 +73,21 @@ server <- function(input, output, session){
                      bins = 20,
                      #breaks = seq(500, 2000, by = 20),
                      color="grey",
-                     fill="white") + 
+                     fill="white", 
+                     size=3) + 
       geom_density(alpha=0.3,
-                   fill ="#FF6666") +
+                   fill ="#FF6666", 
+                   size =3) +
       #scale_x_continuous(breaks=seq(3, 5, 0.5), limits=c(3.5, 4.5))+
       geom_vline(aes(xintercept=GPA_mean),
-                 col="black", size=1, linetype="dashed")+
-      annotate(x=GPA_mean, y=0, label="mean", geom="label") +
+                 col="black", size=2, linetype="dashed")+
+      annotate(x=GPA_mean, y=0, label="mean", geom="label", size=8) +
       geom_vline(aes(xintercept=input$GPA),
-                 col="blue" ,size=1, linetype="dashed") +
+                 col="blue" ,size=2, linetype="dashed") +
       annotate(x=input$GPA, y=5, label="Your GPA",
-               color="blue", geom="label")
+               color="blue", geom="label", size=8) + 
+      theme(axis.text=element_text(size=18),
+            axis.title=element_text(size=18,face="bold"))
 
   })
   
@@ -83,12 +96,15 @@ server <- function(input, output, session){
     Accepted_df %>%
       filter(Accepted == input$School & GPA_measure==tolower(input$GPA_Scale)) %>%
       ggplot(aes(y=GPA)) +
-      geom_boxplot(outliers=FALSE) +
+      geom_boxplot(outliers=FALSE, size=2) +
       xlim(-1,1) +
       geom_hline(yintercept = input$GPA, linetype="dashed",
-                 size=1, color="blue") +
+                 size=2, color="blue") +
       annotate(x=-0.7, y=input$GPA, label="Your GPA",
-               color="blue", geom="label")
+               color="blue", geom="label", size=8) + 
+      theme(axis.text=element_text(size=18),
+            axis.title=element_text(size=18,face="bold"), 
+            axis.title.x=element_blank())
     })
   
   
@@ -168,7 +184,8 @@ server <- function(input, output, session){
     input_df = input_df[, !(names(input_df) %in% c("user_url", "username", "current_school", "user_major",
                                                    "accepted_schools", "waitlisted_schools",
                                                    "rejected_schools", "rank", "num_of_Essays",
-                                                   "num_of_Advice", "num_of_schools", "ACT", "class_of"))]
+                                                   "num_of_Advice", "num_of_schools", "ACT", "class_of",
+                                                   "Admission"))]
     
     #fill na values with mean 
     input_df = na.aggregate(input_df)
@@ -192,7 +209,7 @@ server <- function(input, output, session){
                                         ifelse(input$Ethnicity=="Asian", 4,
                                                ifelse(input$Ethnicity=="White Non-Hispanic",5,0))))),
       "English_FL" = ifelse(input$English_FL == "Yes", 1, 0),
-      "Admission" = ifelse(input$Admission_Type == "Early", 1, 0),
+      # "Admission" = ifelse(input$Admission_Type == "Early", 1, 0),
       "first_gen" = ifelse(input$First_Gen == "Yes", 1, 0),
       "legacy" = ifelse(input$Legacy == "Yes", 1, 0),
       "GPA_measure" = ifelse(input$GPA_Scale == "Weighted", 1, 0),
@@ -208,36 +225,7 @@ server <- function(input, output, session){
     #predict on the model 
     model %>%
       predict(user_input, type="response") ->prediction
-    
-    
-    
-    #compute model performance based on same input of data
-    sample <- sample.int(n = nrow(input_df), size = floor(.75*nrow(input_df)), replace = F)
-    
-    #split test and train
-    train = input_df[sample,]
-    test = input_df[-sample,]
-    
-  
-    #only compute test if factor is bigger than 1
-    if (length(unique(test$Result))>1) {
-      #compute model performance based on same input of data
-      model_test = glm(Result ~ ., family = binomial(link='logit'), data=train)
-      # # 
-      model_test %>%
-        predict(test, type="response") ->prediction_test
-      # # 
-      prediction_test = ifelse(prediction_test>0.5, 1, 0)
-      
-      prediction_test = as.factor(prediction_test)
-      test$Result = as.factor(test$Result)
-      #
-      model_perf = confusionMatrix(test$Result, prediction_test)
-      
-    }else{
-      model_perf = "Not Enough Data"
-    }
-    
+
     
     HTML(
       
@@ -341,7 +329,8 @@ server <- function(input, output, session){
     input_df = input_df[, !(names(input_df) %in% c("user_url", "username", "current_school", "user_major",
                                                    "accepted_schools", "waitlisted_schools",
                                                    "rejected_schools", "rank", "num_of_Essays",
-                                                   "num_of_Advice", "num_of_schools", "ACT", "class_of"))]
+                                                   "num_of_Advice", "num_of_schools", "ACT", "class_of",
+                                                   "Admission"))]
     
     #fill na values with mean 
     input_df = na.aggregate(input_df)
@@ -365,7 +354,7 @@ server <- function(input, output, session){
                                          ifelse(input$Ethnicity=="Asian", 4,
                                                 ifelse(input$Ethnicity=="White Non-Hispanic",5,0))))),
       "English_FL" = ifelse(input$English_FL == "Yes", 1, 0),
-      "Admission" = ifelse(input$Admission_Type == "Early", 1, 0),
+      # "Admission" = ifelse(input$Admission_Type == "Early", 1, 0),
       "first_gen" = ifelse(input$First_Gen == "Yes", 1, 0),
       "legacy" = ifelse(input$Legacy == "Yes", 1, 0),
       "GPA_measure" = ifelse(input$GPA_Scale == "Weighted", 1, 0),
@@ -410,7 +399,18 @@ server <- function(input, output, session){
       conf = confusion_matrix(targets = test$Result, 
                               predictions = prediction_test)
       
-      plot_confusion_matrix(conf$`Confusion Matrix`[[1]])
+      plot_confusion_matrix(conf$`Confusion Matrix`[[1]], 
+                            font_counts = font(
+                              size= 10
+                            ), 
+                            add_row_percentages=FALSE, 
+                            add_col_percentages=FALSE,
+                            tile_border_size=1, 
+                            arrow_nudge_from_text=0.5,
+                            # font_normalized = font(
+                            #   size =10,
+                            # )
+                            )
       
       
     }else{

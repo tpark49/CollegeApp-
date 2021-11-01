@@ -1,0 +1,11 @@
+name: collegeapp-
+title:
+username:
+account: applytocollege
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 5013760
+bundleId: 5197533
+url: https://applytocollege.shinyapps.io/collegeapp-/
+when: 1635752670.60456
+lastSyncTime: 1635752670.60458

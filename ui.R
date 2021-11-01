@@ -1,5 +1,5 @@
 ui <- dashboardPage(
-  dashboardHeader(), 
+  dashboardHeader(title="College App Calculator"), 
   dashboardSidebar(
     sidebarMenu(id="sidebar", 
     menuItem("Chance Me", tabName = "Chance_Me", icon = icon("address-card")),
@@ -72,8 +72,8 @@ ui <- dashboardPage(
                           label= "GPA Improvement:", 
                           min=0, max = 1,value = 0),
               ),
-              htmlOutput("Model"),
-              box(plotOutput("Model_Plot"), width ="100%")
+              htmlOutput("Model") %>% withSpinner(color="#0dc5c1"),
+              box(plotOutput("Model_Plot"), width = "100%") %>% withSpinner(color="#0dc5c1")
       )
       
   

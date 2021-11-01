@@ -13,6 +13,7 @@ library(shinydashboard)
 library(caret)
 library(zoo)
 library(cvms)
+library(shinycssloaders)
 
 #read files
 df1 <- read.csv("example_datafile.csv")

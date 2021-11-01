@@ -2,8 +2,8 @@
 #Given input is Harvard 
 
 #filter df based on input
-input_df_accepted = Accepted_df[Accepted_df$Accepted=="Harvard",]
-input_df_rejected = Rejected_df[Rejected_df$Rejected=="Harvard",]
+input_df_accepted = Accepted_df[Accepted_df$Accepted=="Yale",]
+input_df_rejected = Rejected_df[Rejected_df$Rejected=="Yale",]
 
 #Standardize column names to result to concat 
 colnames(input_df_accepted)[which(names(input_df_accepted)=="Accepted")]  = "Result"

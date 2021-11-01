@@ -15,6 +15,7 @@ server <- function(input, output, session){
     Accepted_df = Accepted_df[!(Accepted_df$SAT %in% outliers_SAT), ]
     
     SAT_mean = mean(Accepted_df[Accepted_df$Accepted==input$School,]$SAT, na.rm = T)
+    
     Accepted_df %>%
       filter(Accepted == input$School) %>%
       ggplot(aes(SAT)) + 
@@ -63,8 +64,19 @@ server <- function(input, output, session){
   #Normal Distribution for GPA
   output$GPA_ND <- renderPlot({
 
-    GPA_mean = mean(Accepted_df[Accepted_df$Accepted==input$School&Accepted_df$GPA_measure==tolower(input$GPA_Scale),]$GPA, na.rm = T)
+    # # Accepted_df = Accepted_df[Accepted_df$GPA_measure == tolower(input$GPA_Scale),]
+    # # outliers_GPA <- boxplot(Accepted_df$GPA, plot = FALSE)$out
+    # # Accepted_df = Accepted_df[!(Accepted_df$GPA %in% outliers_GPA), ]
+    # 
+    # Accepted_df = Accepted_df[!Accepted_df %in% boxplot.stats(Accepted_df$GPA)$out]
     
+    Accepted_df = Accepted_df[(Accepted_df$GPA_measure == tolower(input$GPA_Scale)&(Accepted_df$Accepted == input$School)),]
+    outliers_GPA <- boxplot(Accepted_df$GPA, plot = FALSE)$out
+    Accepted_df = Accepted_df[!(Accepted_df$GPA %in% outliers_GPA), ]
+
+    
+    GPA_mean = mean(Accepted_df[Accepted_df$Accepted==input$School&Accepted_df$GPA_measure==tolower(input$GPA_Scale),]$GPA, na.rm = T)
+
     Accepted_df %>%
       filter(Accepted == input$School & GPA_measure==tolower(input$GPA_Scale)) %>%
       ggplot(aes(GPA)) +
@@ -93,10 +105,15 @@ server <- function(input, output, session){
   
   #boxplot for GPA
   output$GPA_BOX <- renderPlot({
+    
+    Accepted_df = Accepted_df[(Accepted_df$GPA_measure == tolower(input$GPA_Scale)&(Accepted_df$Accepted == input$School)),]
+    outliers_GPA <- boxplot(Accepted_df$GPA, plot = FALSE)$out
+    Accepted_df = Accepted_df[!(Accepted_df$GPA %in% outliers_GPA), ]
+    
     Accepted_df %>%
       filter(Accepted == input$School & GPA_measure==tolower(input$GPA_Scale)) %>%
       ggplot(aes(y=GPA)) +
-      geom_boxplot(outliers=FALSE, size=2) +
+      geom_boxplot(size=2, varHeight=T) +
       xlim(-1,1) +
       geom_hline(yintercept = input$GPA, linetype="dashed",
                  size=2, color="blue") +
@@ -110,6 +127,7 @@ server <- function(input, output, session){
   
   #Logisitc Regression to predict person's acceptance
   output$Model <- renderText({
+    Sys.sleep(2)
     
     #filter df based on input
     input_df_accepted = Accepted_df[Accepted_df$Accepted==input$School,]
@@ -401,24 +419,21 @@ server <- function(input, output, session){
       
       plot_confusion_matrix(conf$`Confusion Matrix`[[1]], 
                             font_counts = font(
-                              size= 10
+                              size= 12
                             ), 
                             add_row_percentages=FALSE, 
                             add_col_percentages=FALSE,
                             tile_border_size=1, 
-                            arrow_nudge_from_text=0.5,
+                            arrow_nudge_from_text=0.5
                             # font_normalized = font(
                             #   size =10,
                             # )
                             )
-      
-      
+
     }else{
       model_perf = "Not Enough Data"
     }
-    
 
-    # print(model_perf)
   })
 
 

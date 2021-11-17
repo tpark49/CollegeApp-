@@ -1,4 +1,4 @@
 # CollegeApp
 
 
-See what your chances at getting into college! 
+See what your chances are at getting into top colleges! 

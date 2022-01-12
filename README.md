@@ -1,4 +1,4 @@
-# College Prediction Engine - Find Out Your Chances at the Top US Universities
+# College Prediction Engine - Find Out Your Chances
 
 
 ## Introduction

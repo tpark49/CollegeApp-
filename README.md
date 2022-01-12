@@ -4,7 +4,7 @@
 ## Introduction
 The goal of this project is to build a recommendation engine for high school students to "chance" themselves at various colleges. I scraped over 88K profiles on admitsee.com with each profile having these main features: 
 
-Ethnicity \n
+Ethnicity <br />
 English is first language
 First Generation Admit 
 Legacy

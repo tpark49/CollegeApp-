@@ -18,3 +18,5 @@ Number of APs and SAT2s Taken  <br />
 Once these inputs are passed, I filter the main dataframe by college of choice provided by the user. Then, a logistic regression is trained on the said dataframe to generate a probability of acceptance. In addition, a user can find where his SAT score and GPA rank amongst students who got admitted to the college. 
 
 You can find the application here: https://applytocollege.shinyapps.io/collegeapp-/
+
+Case Study ppt: https://docs.google.com/presentation/d/16OsPlD8V2Y5xlIQvm-_CrdrvSwamRV1BZSQ3rxBMXcM/edit?usp=sharing
